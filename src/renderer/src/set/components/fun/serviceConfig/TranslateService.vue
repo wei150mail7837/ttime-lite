@@ -83,8 +83,7 @@
 
           <el-form-item v-if="isAiService(translateServiceThis.type)" label="接口地址">
             <el-input v-model="translateServiceThis.requestUrl" spellcheck="false" />
-            <span class="form-switch-span" v-if="translateServiceThis.type === TranslateServiceEnum.GEMINI">Gemini API 基础地址，如 https://generativelanguage.googleapis.com/v1beta</span>
-            <span class="form-switch-span" v-else>填写完整请求地址，路径和查询参数会原样使用。</span>
+            <span class="form-switch-span">填写完整请求地址，路径和查询参数会原样使用。Ollama 可填 http://127.0.0.1:11434/v1/chat/completions</span>
           </el-form-item>
           <el-form-item v-if="isAiService(translateServiceThis.type)" label="模型">
             <el-input v-model="translateServiceThis.model" placeholder="填写服务提供方的模型 ID" spellcheck="false" />
@@ -108,11 +107,10 @@
               v-model="translateServiceThis.requestArguments"
               type="textarea"
               :autosize="{ minRows: 4, maxRows: 10 }"
-              :placeholder="requestArgumentsExample(translateServiceThis.type)"
+              :placeholder="requestArgumentsExample()"
               spellcheck="false"
             />
             <span class="form-switch-span">填写接口支持的 JSON 请求参数，留空使用服务端默认值。模型、提示词和流式以现有设置为准。</span>
-            <span v-if="translateServiceThis.type === TranslateServiceEnum.GEMINI" class="form-switch-span">Gemini 生成参数放在 generationConfig 中；其他参数按 Gemini 接口格式填写。</span>
           </el-form-item>
 
           <el-form-item
@@ -158,28 +156,6 @@
         </el-form>
         <div v-else>
           <span class='form-switch-span'> 内置翻译源 - 无需配置 </span>
-          <div
-            v-if='
-              translateServiceThis.type === TranslateServiceEnum.BING ||
-              translateServiceThis.type === TranslateServiceEnum.BING_DICT
-            '
-            class='translate-service-bing-msg-block'
-          >
-            <el-divider />
-            <span class='translate-service-bing-msg-title'>建议：</span>
-            <span class='translate-service-bing-msg'>开启了Bing字典翻译源就不用再开启Bing翻译</span>
-            <span class='translate-service-bing-msg'>Bing翻译 = Bing翻译</span>
-            <span class='translate-service-bing-msg'>Bing字典 = Bing翻译 + Bing字典</span>
-          </div>
-          <div
-            v-else-if='translateServiceThis.type === TranslateServiceEnum.EC_DICT'
-            class='translate-service-bing-msg-block'
-          >
-            <el-divider />
-            <span class='translate-service-bing-msg-title'>注意：在使用前需要先导入离线库</span>
-            <span class='translate-service-bing-msg'>导入教程请查看官网：</span>
-            <span class='translate-service-bing-msg'>翻译源申请 -> 简明英汉词典(离线)</span>
-          </div>
         </div>
       </div>
     </div>
@@ -235,11 +211,9 @@ const translateServiceSelectMenuList = ref(translateServiceSelectMenuListTemp)
 const aiPrompts = cacheGet('aiPrompts')
 const isAiService = (type: string): boolean => aiServiceTypes.includes(type)
 
-const requestArgumentsExample = (type: string): string =>
+const requestArgumentsExample = (): string =>
   JSON.stringify(
-    type === TranslateServiceEnum.GEMINI
-      ? { generationConfig: { temperature: 0.1, topP: 0.99 } }
-      : {
+    {
           temperature: 0.1,
           top_p: 0.99,
           frequency_penalty: 0,

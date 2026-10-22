@@ -2,20 +2,6 @@
   <el-form :model="advancedSettingInfo" label-width="150px">
     <span class="group-title-span none-select"> 翻译设置 </span>
     <el-divider />
-    <el-form-item class="none-select" label="语音播放源">
-      <div class="comment-wrap-block">
-        <span>系统语音（TTime）</span>
-      </div>
-    </el-form-item>
-    <el-form-item class="none-select" label="翻译记录">
-      <el-checkbox
-        v-model="advancedSettingInfo.translateHistoryStatus"
-        @change="translateHistoryStatusEvent"
-      />
-      <span class="form-switch-span none-select">
-        只存储30条，超过会自动删除最早的记录（因为记录过多会导致卡顿）
-      </span>
-    </el-form-item>
     <el-form-item class="none-select" label="文本处理">
       <el-checkbox
         v-model="advancedSettingInfo.wrapReplaceSpaceStatus"
@@ -57,48 +43,6 @@
 
     <span class="group-title-span none-select"> 功能设置 </span>
     <el-divider />
-    <el-form-item class="form-item-group none-select" label="鼠标悬浮球(Beta)">
-      <el-checkbox
-        v-model="advancedSettingInfo.hoverBallStatus"
-        label="悬浮球取词"
-        @change="hoverBallStatusEvent"
-      />
-      <span class="form-switch-span none-select">
-        开启后，操作流程：鼠标双击需要翻译的词 -> 浮现TTime小图标 -> 点击翻译
-      </span>
-    </el-form-item>
-    <el-form-item class="none-select">
-      <div class="comment-wrap-block">
-        <el-checkbox
-          v-model="advancedSettingInfo.hoverBallEnhanceStatus"
-          label="增强模式"
-          @change="hoverBallEnhanceStatusEvent"
-        />
-        <span class="form-switch-span none-select">
-          开启后，鼠标拖动非文本内容或双击非文本区域时不会出现悬浮球
-        </span>
-      </div>
-    </el-form-item>
-    <el-form-item class="none-select" label="剪贴板监听配置">
-      <el-checkbox
-        v-model="advancedSettingInfo.clipboardListenerShowStatus"
-        label="剪贴板监听显示状态"
-        @change="clipboardListenerShowStatusEvent"
-      />
-      <span class="form-switch-span none-select"> 开启后，翻译窗口左上角会显示监听开关图标 </span>
-    </el-form-item>
-    <el-form-item class="none-select">
-      <div class="comment-wrap-block">
-        <el-checkbox
-          v-model="advancedSettingInfo.clipboardListenerStatus"
-          label="剪贴板监听模式"
-          @change="clipboardListenerStatusEvent"
-        />
-        <span class="form-switch-span none-select">
-          开启后，当监听到复制文本时将会自动读取剪贴板内容并翻译
-        </span>
-      </div>
-    </el-form-item>
     <el-form-item class="none-select" label="窗口配置">
       <el-checkbox
         v-model="advancedSettingInfo.alwaysOnTopAllowEscStatus"
@@ -107,6 +51,24 @@
       />
       <span class="form-switch-span none-select">
         开启后，当翻译 / OCR窗口置顶时，按ESC键依旧可隐藏窗口
+      </span>
+    </el-form-item>
+    <el-form-item class="none-select" label="使用系统截图">
+      <el-checkbox
+        v-model="advancedSettingInfo.systemScreenshotStatus"
+        @change="systemScreenshotStatusEvent"
+      />
+      <span class="form-switch-span none-select">
+        开启后使用 macOS 自带截图选区（screencapture），关闭则使用内置选区窗口
+      </span>
+    </el-form-item>
+    <el-form-item class="none-select" label="隐藏菜单栏图标">
+      <el-checkbox
+        v-model="advancedSettingInfo.hideTrayIconStatus"
+        @change="hideTrayIconStatusEvent"
+      />
+      <span class="form-switch-span none-select">
+        隐藏后菜单栏将不显示 TTime 图标；翻译窗口左上角仍可进入设置，重新打开 TTime 可唤起窗口
       </span>
     </el-form-item>
     <el-form-item class="none-select" label="输入自动翻译">
@@ -140,25 +102,21 @@
 </template>
 <script setup lang="ts">
 // 翻译内容框内容
-import { h, ref } from 'vue'
+import { ref } from 'vue'
 import { YesNoEnum } from '../../../../../common/enums/YesNoEnum'
 import { cacheGet, cacheSet } from '../../../utils/cacheUtil'
-import { ElMessageBox } from 'element-plus'
 
 /**
  * 翻译相关设置
  */
 const advancedSettingInfo = ref({
   alwaysOnTopAllowEscStatus: cacheGet('alwaysOnTopAllowEscStatus') === YesNoEnum.Y,
+  systemScreenshotStatus: cacheGet('systemScreenshotStatus') === YesNoEnum.Y,
+  hideTrayIconStatus: cacheGet('hideTrayIconStatus') === YesNoEnum.Y,
   wrapReplaceSpaceStatus: cacheGet('wrapReplaceSpaceStatus') === YesNoEnum.Y,
-  hoverBallStatus: cacheGet('hoverBallStatus') === YesNoEnum.Y,
-  hoverBallEnhanceStatus: cacheGet('hoverBallEnhanceStatus') === YesNoEnum.Y,
   ocrWriteClipboardStatus: cacheGet('ocrWriteClipboardStatus') === YesNoEnum.Y,
   ocrWrapReplaceSpaceStatus: cacheGet('ocrWrapReplaceSpaceStatus') === YesNoEnum.Y,
   ocrWrapReplaceStatus: cacheGet('ocrWrapReplaceStatus') === YesNoEnum.Y,
-  translateHistoryStatus: cacheGet('translateHistoryStatus') === YesNoEnum.Y,
-  clipboardListenerShowStatus: cacheGet('clipboardListenerShowStatus') === YesNoEnum.Y,
-  clipboardListenerStatus: cacheGet('clipboardListenerStatus') === YesNoEnum.Y,
   showTranslateNotEmptyStatus: cacheGet('showTranslateNotEmptyStatus') === YesNoEnum.Y,
   inputTranslationAutoStatus: cacheGet('inputTranslationAutoStatus') === YesNoEnum.Y,
   copyCamelCaseResultStatus: cacheGet('copyCamelCaseResultStatus') === YesNoEnum.Y,
@@ -175,6 +133,27 @@ const alwaysOnTopAllowEscStatusEvent = (val): void => {
   advancedSettingInfo.value.alwaysOnTopAllowEscStatus = val
   // 更新置顶时允许隐藏窗口选择事件通知
   window.api.alwaysOnTopAllowEscStatusNotify()
+}
+
+/**
+ * 使用系统截图状态事件
+ *
+ * @param val 使用系统截图状态
+ */
+const systemScreenshotStatusEvent = (val): void => {
+  cacheSet('systemScreenshotStatus', val ? YesNoEnum.Y : YesNoEnum.N)
+  advancedSettingInfo.value.systemScreenshotStatus = val
+}
+
+/**
+ * 隐藏菜单栏图标状态事件
+ *
+ * @param val 隐藏菜单栏图标状态
+ */
+const hideTrayIconStatusEvent = (val): void => {
+  cacheSet('hideTrayIconStatus', val ? YesNoEnum.Y : YesNoEnum.N)
+  advancedSettingInfo.value.hideTrayIconStatus = val
+  window.api.hideTrayIconStatusNotify()
 }
 
 /**
@@ -225,81 +204,6 @@ const ocrWrapReplaceStatusEvent = (val): void => {
 const ocrWriteClipboardStatusEvent = (val): void => {
   cacheSet('ocrWriteClipboardStatus', val ? YesNoEnum.Y : YesNoEnum.N)
   advancedSettingInfo.value.ocrWriteClipboardStatus = val
-}
-
-/**
- * 鼠标悬浮球取词事件
- *
- * @param val 状态
- */
-const hoverBallStatusEvent = (val): void => {
-  if (val) {
-    ElMessageBox({
-      title: '鼠标悬浮球取词(Beta)',
-      message: h('p', null, [
-        h('span', null, '开启后，操作流程：'),
-        h('br', null, []),
-        h('br', null, []),
-        h('span', null, '鼠标双击需要翻译的词 -> 浮现TTime小图标 -> 点击翻译'),
-        h('br', null, []),
-        h('br', null, []),
-        h(
-          'span',
-          null,
-          '注意：此功能正在测试试行阶段，目前仅支持Windows，如果使用过程中出现问题欢迎联系我们进行反馈修复'
-        )
-      ])
-    })
-    const el = document.querySelector('.el-overlay')
-    if (el) {
-      // 此处动态调整下遮罩 否则大小会超过窗口
-      el['style'].cssText = 'width: 97.7%;margin-left: 10px;border-radius: 8px;'
-    }
-  }
-  hoverBallEnhanceStatusEvent(val)
-  cacheSet('hoverBallStatus', val ? YesNoEnum.Y : YesNoEnum.N)
-  advancedSettingInfo.value.hoverBallStatus = val
-}
-
-/**
- * 悬浮球增强模式事件
- *
- * @param val 状态
- */
-const hoverBallEnhanceStatusEvent = (val): void => {
-  cacheSet('hoverBallEnhanceStatus', val ? YesNoEnum.Y : YesNoEnum.N)
-  advancedSettingInfo.value.hoverBallEnhanceStatus = val
-}
-
-/**
- * 翻译记录状态事件
- *
- * @param val 状态
- */
-const translateHistoryStatusEvent = (val): void => {
-  cacheSet('translateHistoryStatus', val ? YesNoEnum.Y : YesNoEnum.N)
-  advancedSettingInfo.value.translateHistoryStatus = val
-}
-
-/**
- * 剪贴板监听显示状态事件
- *
- * @param val 状态
- */
-const clipboardListenerShowStatusEvent = (val): void => {
-  cacheSet('clipboardListenerShowStatus', val ? YesNoEnum.Y : YesNoEnum.N)
-  advancedSettingInfo.value.clipboardListenerShowStatus = val
-  clipboardListenerStatusEvent(val)
-}
-
-/**
- * 剪贴板监听状态事件
- *
- * @param val 状态
- */
-const clipboardListenerStatusEvent = (val): void => {
-  cacheSet('clipboardListenerStatus', val ? YesNoEnum.Y : YesNoEnum.N)
-  advancedSettingInfo.value.clipboardListenerStatus = val
 }
 
 /**

@@ -1,12 +1,7 @@
 import TranslateServiceEnum from '../enums/TranslateServiceEnum'
 import { AiPrompt, buildPromptMessages } from './aiPrompts'
 
-export const aiServiceTypes = [
-  TranslateServiceEnum.OPEN_AI,
-  TranslateServiceEnum.DEEP_SEEK,
-  TranslateServiceEnum.GEMINI,
-  TranslateServiceEnum.ZHIPU
-]
+export const aiServiceTypes = [TranslateServiceEnum.OPEN_AI]
 
 export interface AiRequestInfo {
   type: string
@@ -42,21 +37,6 @@ export const buildAiRequest = (info: AiRequestInfo, stream: boolean) => {
     info.languageResultType
   )
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  if (info.type === TranslateServiceEnum.GEMINI) {
-    headers['x-goog-api-key'] = info.appKey
-    const system = messages.find((message) => message.role === 'system')
-    return {
-      url: `${info.requestUrl.replace(/\/$/, '')}/models/${encodeURIComponent(info.model)}:${
-        stream ? 'streamGenerateContent?alt=sse' : 'generateContent'
-      }`,
-      headers,
-      body: {
-        ...extraArgs,
-        systemInstruction: system ? { parts: [{ text: system.content }] } : undefined,
-        contents: [{ role: 'user', parts: [{ text: messages[messages.length - 1].content }] }]
-      }
-    }
-  }
   if (info.appKey) headers.Authorization = `Bearer ${info.appKey}`
   return {
     url: info.requestUrl,
@@ -70,40 +50,20 @@ export const buildAiRequest = (info: AiRequestInfo, stream: boolean) => {
   }
 }
 
-export const readAiResponse = (type: string, data): string => {
+export const readAiResponse = (data): string => {
   if (data.error) throw new Error(typeof data.error === 'string' ? data.error : data.error.message)
-  let text: string
-  if (type === TranslateServiceEnum.GEMINI) {
-    text = data.candidates?.[0]?.content?.parts
-      ?.filter((part) => !part.thought)
-      .map((part) => part.text || '')
-      .join('')
-  } else text = data.choices[0].message.content
+  const text: string = data.choices[0].message.content
   if (!text) throw new Error('服务未返回文本结果')
   return text
 }
 
-const readChunk = (type: string, data): { text: string; done: boolean } => {
+const readChunk = (data): { text: string; done: boolean } => {
   if (data.error) throw new Error(typeof data.error === 'string' ? data.error : data.error.message)
-  if (type === TranslateServiceEnum.GEMINI) {
-    const candidate = data.candidates?.[0]
-    return {
-      text:
-        candidate?.content?.parts
-          ?.filter((part) => !part.thought)
-          .map((part) => part.text || '')
-          .join('') || '',
-      done: Boolean(candidate?.finishReason)
-    }
-  }
   const choice = data.choices[0]
   return { text: choice?.delta?.content || '', done: Boolean(choice?.finish_reason) }
 }
 
-export async function* readAiStream(
-  type: string,
-  chunks: AsyncIterable<Uint8Array>
-): AsyncGenerator<string> {
+export async function* readAiStream(chunks: AsyncIterable<Uint8Array>): AsyncGenerator<string> {
   const decoder = new TextDecoder()
   let buffer = ''
   let eventData: string[] = []
@@ -111,10 +71,10 @@ export async function* readAiStream(
   let receivedText = false
   const consumeLine = (line: string): { text: string; done: boolean } | undefined => {
     if (line.startsWith('data:')) eventData.push(line.slice(5).trimStart())
-    if (line !== '' || eventData.length === 0) return
+    if (line !== '' || eventData.length === 0) return undefined
     const payload = eventData.join('\n')
     eventData = []
-    return payload === '[DONE]' ? { text: '', done: true } : readChunk(type, JSON.parse(payload))
+    return payload === '[DONE]' ? { text: '', done: true } : readChunk(JSON.parse(payload))
   }
   for await (const chunk of chunks) {
     buffer += decoder.decode(chunk, { stream: true })

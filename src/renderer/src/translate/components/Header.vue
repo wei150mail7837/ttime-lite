@@ -11,27 +11,8 @@
             />
           </a>
         </el-tooltip>
-        <el-tooltip v-if="clipboardListenerShowStatus" placement="bottom-start">
-          <template #content>开启/关闭剪贴板监听模式</template>
-          <a class="function-tools" @click="clipboardListenerStatusFun">
-            <svg-icon
-              :icon-class="
-                clipboardListenerStatus === YesNoEnum.Y
-                  ? 'clipboard-listener-select'
-                  : 'clipboard-listener'
-              "
-              class="function-tools-icon"
-            />
-          </a>
-        </el-tooltip>
       </div>
       <div class="function-tools-category">
-        <el-tooltip v-if="translateHistoryStatus" placement="bottom-start">
-          <template #content>打开翻译记录</template>
-          <a class="function-tools" @click="toSetTranslateHistoryPage">
-            <svg-icon icon-class="translate-history" class="function-tools-icon" />
-          </a>
-        </el-tooltip>
         <el-tooltip placement="bottom-start">
           <template #content>打开设置窗口</template>
           <a class="function-tools" @click="toSetPage">
@@ -54,18 +35,9 @@ if (undefined === cacheGet('thumbtackStatus')) {
 
 // 窗口固定状态
 const thumbtackStatus = ref(cacheGet('thumbtackStatus'))
-// 剪贴板监听显示状态
-const clipboardListenerShowStatus = ref(cacheGet('clipboardListenerShowStatus') === YesNoEnum.Y)
-// 剪贴板监听状态
-const clipboardListenerStatus = ref(cacheGet('clipboardListenerStatus'))
-// 翻译历史记录状态
-const translateHistoryStatus = ref(cacheGet('translateHistoryStatus') === YesNoEnum.Y)
 // 窗口显示事件 当窗口显示时触发
 window.api.winShowEvent(() => {
   nextTick(() => {
-    translateHistoryStatus.value = cacheGet('translateHistoryStatus') === YesNoEnum.Y
-    clipboardListenerShowStatus.value = cacheGet('clipboardListenerShowStatus') === YesNoEnum.Y
-    clipboardListenerStatus.value = cacheGet('clipboardListenerStatus')
   })
 })
 // 根据固定状态设置窗口是否置于最前面
@@ -89,27 +61,10 @@ const thumbtackFun = (): void => {
 }
 
 /**
- * 剪贴板监听状态
- */
-const clipboardListenerStatusFun = (): void => {
-  clipboardListenerStatus.value =
-    clipboardListenerStatus.value === YesNoEnum.N ? YesNoEnum.Y : YesNoEnum.N
-  cacheSet('clipboardListenerStatus', clipboardListenerStatus.value)
-}
-
-/**
  * 跳转设置页面
  */
 const toSetPage = (): void => {
   cacheDelete('setPageMenuIndex')
-  window.api.openSetPageEvent()
-}
-
-/**
- * 跳转翻译记录页面
- */
-const toSetTranslateHistoryPage = (): void => {
-  cacheSet('setPageMenuIndex', 'translateHistory')
   window.api.openSetPageEvent()
 }
 </script>

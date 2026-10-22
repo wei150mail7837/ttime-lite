@@ -16,11 +16,8 @@ export default defineConfig({
         input: {
           index: resolve(__dirname, 'src/preload/index.ts'),
           screenshot: resolve(__dirname, 'src/preload/screenshot.ts'),
-          textOcr: resolve(__dirname, 'src/preload/textOcr.ts'),
           set: resolve(__dirname, 'src/preload/set.ts'),
-          hoverBall: resolve(__dirname, 'src/preload/hoverBall.ts'),
           ocr: resolve(__dirname, 'src/preload/ocr.ts'),
-          ocrSilence: resolve(__dirname, 'src/preload/ocrSilence.ts')
         }
       }
     }
@@ -53,11 +50,8 @@ export default defineConfig({
         input: {
           index: resolve(__dirname, 'src/renderer/index.html'),
           screenshot: resolve(__dirname, 'src/renderer/screenshot.html'),
-          textOcr: resolve(__dirname, 'src/renderer/textOcr.html'),
           set: resolve(__dirname, 'src/renderer/set.html'),
-          hoverBall: resolve(__dirname, 'src/renderer/hoverBall.html'),
           ocr: resolve(__dirname, 'src/renderer/ocr.html'),
-          ocrSilence: resolve(__dirname, 'src/renderer/ocrSilence.html')
         }
       }
     }

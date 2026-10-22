@@ -45,11 +45,11 @@ export const requestAiTranslation = async (info): Promise<void> => {
     })
     if (!response.ok) throw new Error(`HTTP ${response.status}: ${await response.text()}`)
     if (stream) {
-      for await (const text of readAiStream(info.type, readChunks(response.body))) {
+      for await (const text of readAiStream(readChunks(response.body))) {
         callback(R.SUCCESS, { code: OpenAIStatusEnum.ING, content: text })
       }
     } else {
-      const text = readAiResponse(info.type, await response.json())
+      const text = readAiResponse(await response.json())
       if (check) {
         callback(R.SUCCESS, { content: text })
         return

@@ -7,12 +7,12 @@ import R from '../../common/class/R'
 import log from '../utils/log'
 import { isNotNull, isNull } from '../../common/utils/validate'
 import GlobalWin from './GlobalWin'
+import { TrayEvent } from './TrayEvent'
 import { SystemTypeEnum } from '../enums/SystemTypeEnum'
 import { StoreTypeEnum } from '../../common/enums/StoreTypeEnum'
 import StoreService from './StoreService'
 import { StoreConfigFunTypeEnum } from '../../common/enums/StoreConfigFunTypeEnum'
 import BrowserWindowConstructorOptions = Electron.BrowserWindowConstructorOptions
-import { ecDictDbClose } from './channel/interfaces/EcDictRequest'
 
 let nullWin: BrowserWindow
 
@@ -152,6 +152,13 @@ ipcMain.handle('always-onTop-allow-esc-status-notify', (_event, _args) => {
 })
 
 /**
+ * 隐藏菜单栏图标状态变更通知
+ */
+ipcMain.handle('hide-tray-icon-status-notify', (_event, _args) => {
+  TrayEvent.applyHideStatus()
+})
+
+/**
  * 窗口字体大小更新通知
  */
 ipcMain.handle('win-font-size-notify', (_event, _args) => {
@@ -174,7 +181,6 @@ ipcMain.on('update-config-info-path', (event, storeConfigFunType, storeType, dir
     oldFilePath = StoreService.systemGet(StoreService.userPluginsPathKey)
     oldPath = oldFilePath
     directoryPath = path.join(directoryPath, StoreService.userPluginsName)
-    ecDictDbClose()
   }
   const fileName = oldFilePath.replaceAll(oldPath, '')
   const newFilePath = path.join(directoryPath, fileName)

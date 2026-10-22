@@ -3,44 +3,9 @@
  */
 class OcrServiceEnum {
   /**
-   * TTime OCR
+   * 本地离线OCR
    */
   static TTIME = 'TTime'
-
-  /**
-   * 百度智能云OCR
-   */
-  static BAIDU = 'Baidu'
-
-  /**
-   * 百度图片翻译
-   */
-  static BAIDU_IMAGE = 'BaiduImage'
-
-  /**
-   * 火山OCR
-   */
-  static VOLCANO = 'Volcano'
-
-  /**
-   * OcrSpace
-   */
-  static OCR_SPACE = 'OcrSpace'
-
-  /**
-   * 讯飞OCR
-   */
-  static XFYUN = 'Xfyun'
-
-  /**
-   * 腾讯云
-   */
-  static TENCENT_CLOUD = 'TencentCloud'
-
-  /**
-   * 腾讯云图片翻译
-   */
-  static TENCENT_CLOUD_IMAGE = 'TencentCloudImage'
 }
 
 export default OcrServiceEnum

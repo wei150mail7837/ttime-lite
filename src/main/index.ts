@@ -8,12 +8,8 @@ import log from './utils/log'
 import { SystemTypeEnum } from './enums/SystemTypeEnum'
 import GlobalWin from './service/GlobalWin'
 import './service/channel/TranslateChannel'
-import './service/HoverBall'
 import './service/Ocr'
-import './service/OcrSilence'
-import './service/ClipboardListenerService'
 import './service/IpcMainHandle'
-import { injectWinAgent } from './utils/RequestUtil'
 import StoreService from './service/StoreService'
 import { YesNoEnum } from '../common/enums/YesNoEnum'
 
@@ -93,8 +89,6 @@ function createWindow(): void {
   } else {
     mainWin.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
-
-  injectWinAgent(StoreService.configGet('agentConfig'), mainWin.webContents.session)
 
   // mainWin.webContents.openDevTools({ mode: 'detach' })
   GlobalWin.setMainWin(mainWin)

@@ -21,9 +21,6 @@
         >
         </el-input>
         <div class="function-tools-block">
-          <a v-show="!isScreenshotEnd" class="function-tools" @click="playSpeech(translateContent)">
-            <svg-icon icon-class="play" class="function-tools-icon" />
-          </a>
           <a
             v-show="!isScreenshotEnd"
             class="function-tools"
@@ -51,7 +48,7 @@ import {
   getTranslateServiceMapByUse,
   TranslateServiceBuilder
 } from '../../utils/translateServiceUtil'
-import { cacheGet, cacheGetByType, cacheSetByType } from '../../utils/cacheUtil'
+import { cacheGet } from '../../utils/cacheUtil'
 import ElMessageExtend from '../../utils/messageExtend'
 import {
   getLanguageNameConversion,
@@ -60,9 +57,6 @@ import {
 import { YesNoEnum } from '../../../../common/enums/YesNoEnum'
 import { findLanguageByLanguageName } from './channel/language/ChannelLanguage'
 import TranslateRecordVo from '../../../../common/class/TranslateRecordVo'
-import TranslateServiceRecordVo from '../../../../common/class/TranslateServiceRecordVo'
-import { StoreTypeEnum } from '../../../../common/enums/StoreTypeEnum'
-import { updateTranslateRecordList } from '../../utils/translateRecordUtil'
 
 // 加载loading
 const loadingImageSrc = ref(loadingImage)
@@ -120,9 +114,6 @@ const screenshotRestore = (): void => {
  *
  * @param text 播放的文字
  */
-const playSpeech = (text): void => {
-  translate.playSpeech(text)
-}
 
 /**
  * 文字写入到剪贴板
@@ -276,26 +267,6 @@ const translateFun = (): void => {
       })
     }
     requestMap.set(translateService.id, info)
-  }
-  // 翻译记录状态
-  const translateHistoryStatus = cacheGet('translateHistoryStatus') === YesNoEnum.Y
-  if (translateHistoryStatus) {
-    // 构建翻译记录信息
-    const translateServiceRecordList = []
-    requestMap.forEach((value) => {
-      const serviceRecordVo = new TranslateServiceRecordVo()
-      serviceRecordVo.translateServiceType = value.type
-      serviceRecordVo.translateServiceName = value.serviceName
-      serviceRecordVo.translateServiceId = value.id
-      serviceRecordVo.translateStatus = false
-      translateServiceRecordList.push(serviceRecordVo)
-    })
-    translateRecordVo.translateServiceRecordList = translateServiceRecordList
-    let translateRecordList = cacheGetByType(StoreTypeEnum.HISTORY_RECORD, 'translateRecordList')
-    translateRecordList = isNull(translateRecordList) ? [] : translateRecordList
-    translateRecordList.push(translateRecordVo)
-    // 更新翻译记录
-    updateTranslateRecordList(translateRecordList)
   }
   // 触发翻译
   requestMap.forEach((value) => {

@@ -45,52 +45,8 @@ const copySnakeCase = (text): void => {
   textWriteShearPlate(text)
 }
 
-/**
- * 播放语音
- *
- * @param text 播放的文字
- */
-const playSpeech = (text): void => {
-  const synth = window.speechSynthesis
-  const msg = new SpeechSynthesisUtterance(text)
-  // 先清除当前正在播放的语音再播放
-  synth.cancel()
-  synth.speak(msg)
-}
-
-/**
- * 全局播放语音唯一对象
- *
- * 为了保持可以单例 不会出现点击多次播放语音重叠
- */
-let playSpeechAudio
-
-/**
- * 播放语音
- *
- * @param url 播放语音服务
- */
-const playSpeechNewAudio = (url): void => {
-  if (null != playSpeechAudio) {
-    playSpeechAudio.pause()
-    playSpeechAudio = null
-  }
-  // 此处是异步加载的语音文件
-  playSpeechAudio = new Audio(url)
-  // 文件加载错误事件
-  playSpeechAudio.onerror = (): void => {
-    ElMessageExtend.error('语音播放失败')
-  }
-  // 文件加载成功事件
-  playSpeechAudio.onloadeddata = (): void => {
-    playSpeechAudio.play()
-  }
-}
-
 export default {
   textWriteShearPlate,
   copyCamelCase,
-  copySnakeCase,
-  playSpeech,
-  playSpeechNewAudio
+  copySnakeCase
 }

@@ -3,7 +3,6 @@ import Store from 'electron-store'
 import path from 'path'
 import TranslateShowPositionEnum from '../../common/enums/TranslateShowPositionEnum'
 import { YesNoEnum } from '../../common/enums/YesNoEnum'
-import { PlaySpeechServiceEnum } from '../../common/enums/PlaySpeechServiceEnum'
 import { ShortcutKeyEnum } from '../../common/enums/ShortcutKeyEnum'
 import { isNull } from '../../common/utils/validate'
 import { GlobalShortcutEvent } from './GlobalShortcutEvent'
@@ -130,30 +129,13 @@ class StoreService {
     if (!StoreService.configHas('screenshotOcrShortcutKey')) {
       StoreService.configSet('screenshotOcrShortcutKey', 'Alt + Shift + W')
     }
-    if (!StoreService.configHas('screenshotSilenceOcrShortcutKey')) {
-      StoreService.configSet('screenshotSilenceOcrShortcutKey', 'Alt + Shift + E')
-    }
     if (!StoreService.configHas('translateShowPositionType')) {
       StoreService.configSet('translateShowPositionType', TranslateShowPositionEnum.LAST_TIME)
     }
     if (!StoreService.configHas('fromTopOfWindowPercentage')) {
       StoreService.configSet('fromTopOfWindowPercentage', 30)
     }
-    if (!StoreService.configHas('agentConfig')) {
-      StoreService.configSet('agentConfig', {
-        type: 0,
-        checkStatus: false,
-        host: '',
-        port: '',
-        userName: '',
-        passWord: ''
-      })
-    }
 
-    // 已移除有道、搜狗播放源，将旧配置迁移到系统语音。
-    if (StoreService.configGet('playSpeechService') !== PlaySpeechServiceEnum.TTIME) {
-      StoreService.configSet('playSpeechService', PlaySpeechServiceEnum.TTIME)
-    }
     // 初始化置顶时允许隐藏窗口状态
     if (!StoreService.configHas('alwaysOnTopAllowEscStatus')) {
       StoreService.configSet('alwaysOnTopAllowEscStatus', YesNoEnum.N)
@@ -161,12 +143,6 @@ class StoreService {
     // 初始化换行符替换为空格状态
     if (!StoreService.configHas('wrapReplaceSpaceStatus')) {
       StoreService.configSet('wrapReplaceSpaceStatus', YesNoEnum.N)
-    }
-    // 初始化鼠标悬浮球取词状态
-    if (!StoreService.configHas('hoverBallStatus')) {
-      StoreService.configSet('hoverBallStatus', YesNoEnum.N)
-      // 悬浮球增强模式
-      StoreService.configSet('hoverBallEnhanceStatus', YesNoEnum.N)
     }
     // 初始化OCR结果写入剪贴板状态
     if (!StoreService.configHas('ocrWriteClipboardStatus')) {
@@ -184,14 +160,15 @@ class StoreService {
     if (!StoreService.configHas('translateChoiceDelay')) {
       StoreService.configSet('translateChoiceDelay', 600)
     }
-    // 初始化翻译记录状态
-    if (!StoreService.configHas('translateHistoryStatus')) {
-      StoreService.configSet('translateHistoryStatus', YesNoEnum.Y)
+    // 精简版：翻译记录功能已移除，强制关闭
+    StoreService.configSet('translateHistoryStatus', YesNoEnum.N)
+    // 初始化使用系统截图工具状态（默认使用系统自带截图）
+    if (!StoreService.configHas('systemScreenshotStatus')) {
+      StoreService.configSet('systemScreenshotStatus', YesNoEnum.Y)
     }
-    // 初始化剪贴板监听模式状态
-    if (!StoreService.configHas('clipboardListenerShowStatus')) {
-      StoreService.configSet('clipboardListenerShowStatus', YesNoEnum.N)
-      StoreService.configSet('clipboardListenerStatus', YesNoEnum.N)
+    // 初始化隐藏菜单栏图标状态
+    if (!StoreService.configHas('hideTrayIconStatus')) {
+      StoreService.configSet('hideTrayIconStatus', YesNoEnum.N)
     }
     // 初始化默认文字大小
     if (!StoreService.configHas('winFontSize')) {
@@ -240,10 +217,6 @@ class StoreService {
         {
           type: ShortcutKeyEnum.SCREENSHOT_OCR,
           shortcutKey: StoreService.configGet('screenshotOcrShortcutKey')
-        },
-        {
-          type: ShortcutKeyEnum.SCREENSHOT_SILENCE_OCR,
-          shortcutKey: StoreService.configGet('screenshotSilenceOcrShortcutKey')
         }
       ]
       log.info('[初始加载翻译快捷键事件] - 开始，翻译快捷键列表 : ', translateShortcutKeyList)

@@ -69,15 +69,6 @@ const apiCheckOcrCallbackEvent = (callback): void => {
 }
 
 /**
- * 代理更新事件
- *
- * @param agentConfig 代理配置
- */
-const agentUpdateEvent = (agentConfig): void => {
-  ipcRenderer.invoke('agent-update-event', agentConfig)
-}
-
-/**
  * 更新置顶时允许隐藏窗口选择事件通知
  */
 const alwaysOnTopAllowEscStatusNotify = (): void => {
@@ -129,6 +120,10 @@ const setWinFocusEvent = (callback): void => {
 /**
  * 窗口字体大小更新通知
  */
+const hideTrayIconStatusNotify = (): void => {
+  ipcRenderer.invoke('hide-tray-icon-status-notify')
+}
+
 const winFontSizeNotify = (): void => {
   ipcRenderer.invoke('win-font-size-notify')
 }
@@ -145,8 +140,6 @@ const winShowEvent = (callback): void => {
 }
 
 const api = {
-  localOcrModelStatus: (language: string) => ipcRenderer.invoke('local-ocr-model-status', language),
-  prepareLocalOcrModels: (language: string) => ipcRenderer.invoke('prepare-local-ocr-models', language),
   ...common,
   updateTranslateShortcutKeyEvent,
   closeSetWinEvent,
@@ -156,12 +149,12 @@ const api = {
   apiCheckTranslateCallbackEvent,
   apiUniteOcrCheck,
   apiCheckOcrCallbackEvent,
-  agentUpdateEvent,
   alwaysOnTopAllowEscStatusNotify,
   openDirectoryDialog,
   openDirectoryDialogCallback,
   updateConfigInfoPath,
   setWinFocusEvent,
+  hideTrayIconStatusNotify,
   winFontSizeNotify,
   winShowEvent,
 }

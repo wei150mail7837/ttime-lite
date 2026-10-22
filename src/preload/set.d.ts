@@ -6,8 +6,6 @@ declare global {
     updateTranslateShortcutKeyEvent
     getSystemTypeEvent
     closeSetWinEvent
-    localOcrModelStatus
-    prepareLocalOcrModels
     autoLaunchEvent
     updateTranslateServiceNotify
     apiUniteTranslateCheck
@@ -17,12 +15,12 @@ declare global {
     apiUniteOcrCheck
     apiCheckOcrCallbackEvent
     getVersionEvent
-    agentUpdateEvent
     alwaysOnTopAllowEscStatusNotify
     openDirectoryDialog
     openDirectoryDialogCallback
     updateConfigInfoPath
     setWinFocusEvent
+    hideTrayIconStatusNotify
     winFontSizeNotify
     winShowEvent
   }

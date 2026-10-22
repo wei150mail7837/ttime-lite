@@ -4,7 +4,6 @@ import { SystemTypeEnum } from '../enums/SystemTypeEnum'
 import { isNull } from '../../common/utils/validate'
 import log from '../utils/log'
 import GlobalWin from './GlobalWin'
-import { injectWinAgent } from '../utils/RequestUtil'
 import { StoreConfigFunTypeEnum } from '../../common/enums/StoreConfigFunTypeEnum'
 import StoreService from './StoreService'
 import { StoreTypeEnum } from '../../common/enums/StoreTypeEnum'
@@ -67,10 +66,6 @@ ipcMain.on('get-version-event', (event) => {
 /**
  * 代理更新事件
  */
-ipcMain.handle('agent-update-event', (_event, agentConfig) => {
-  injectWinAgent(agentConfig, GlobalWin.mainWin.webContents.session)
-})
-
 /**
  * 打开目录对话框
  */

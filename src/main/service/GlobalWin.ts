@@ -6,7 +6,6 @@ import { YesNoEnum } from '../../common/enums/YesNoEnum'
 import { ScreenshotsMain } from './Screenshot'
 import OcrTypeEnum from '../enums/OcrTypeEnum'
 import WebShowMsgEnum from '../enums/WebShowMsgEnum'
-import { SystemTypeEnum } from '../enums/SystemTypeEnum'
 import TranslateShowPositionEnum from '../../common/enums/TranslateShowPositionEnum'
 import log from '../utils/log'
 import StoreService from './StoreService'
@@ -36,16 +35,6 @@ class GlobalWin {
   static setWin
 
   /**
-   * 悬浮球窗口
-   */
-  static hoverBallWin
-
-  /**
-   * 是否显示悬浮球
-   */
-  static isHoverBall = false
-
-  /**
    * ocr窗口
    */
   static ocrWin
@@ -59,23 +48,6 @@ class GlobalWin {
    * OCR是否置顶
    */
   static isOcrAlwaysOnTop = false
-
-  /**
-   * ocr静默窗口
-   */
-  static ocrSilenceWin
-
-  /**
-   * 是否显示OCR静默窗口
-   */
-  static isOcrSilence = false
-
-  /**
-   * ocr静默截图 - 临时图片
-   *
-   * 临时记录，base64格式，主要用于如果静默OCR时识别出错了 回显使用
-   */
-  static ocrSilenceTempImg
 
   /**
    * 显示窗口
@@ -231,11 +203,6 @@ class GlobalWin {
         GlobalWin.ocrWin.webContents.send('update-text', text)
       } else if (ScreenshotsMain.ocrType === OcrTypeEnum.OCR_TRANSLATE) {
         GlobalWin.mainWinUpdateTranslatedContent(text)
-      } else if (ScreenshotsMain.ocrType === OcrTypeEnum.OCR_SILENCE) {
-        // 临时存储的图片清空
-        GlobalWin.ocrSilenceTempImg = ''
-        GlobalWin.ocrSilenceWinHide()
-        clipboard.writeText(text)
       }
     } else {
       if (ScreenshotsMain.ocrType === OcrTypeEnum.OCR) {
@@ -244,17 +211,6 @@ class GlobalWin {
       } else if (ScreenshotsMain.ocrType === OcrTypeEnum.OCR_TRANSLATE) {
         GlobalWin.mainWinSend('show-msg-event', WebShowMsgEnum.ERROR, text)
         GlobalWin.mainWinSend('update-translated-content', '')
-      } else if (ScreenshotsMain.ocrType === OcrTypeEnum.OCR_SILENCE) {
-        // 如果静默OCR失败 使用OCR页面进行提示报错
-        GlobalWin.ocrSilenceWinHide()
-        GlobalWin.ocrWin.show()
-        setTimeout(() => WinEvent.ocrAlwaysOnTop(GlobalWin.isOcrAlwaysOnTop), 300)
-        // 把临时存储的 截图图片 设置到OCR页面
-        GlobalWin.ocrWin.webContents.send('update-img', GlobalWin.ocrSilenceTempImg)
-        GlobalWin.ocrWin.webContents.send('show-msg-event', WebShowMsgEnum.ERROR, text)
-        GlobalWin.ocrWin.webContents.send('update-text', '')
-        // 临时存储的图片清空
-        GlobalWin.ocrSilenceTempImg = ''
       }
     }
   }
@@ -267,57 +223,6 @@ class GlobalWin {
   static setSetWin(setWin): void {
     // 在调用处保证只会创建一次 销毁时也自动置空 所以此处目前可以不加校验
     GlobalWin.setWin = setWin
-  }
-
-  /**
-   * 设置悬浮球窗口
-   *
-   * @param hoverBallWin 悬浮球窗口
-   */
-  static setHoverBallWin(hoverBallWin): void {
-    // 此处校验是因为窗口不会销毁 所以防止重复设置
-    if (isNull(GlobalWin.hoverBallWin)) {
-      GlobalWin.hoverBallWin = hoverBallWin
-    }
-  }
-
-  /**
-   * 隐藏悬浮球窗口
-   */
-  static hoverBallWinHide(): void {
-    if (isNull(GlobalWin.hoverBallWin)) {
-      return
-    }
-    // console.log('隐藏悬浮球窗口')
-    GlobalWin.isHoverBall = false
-    GlobalWin.hoverBallWin.hide()
-    GlobalWin.hoverBallWin.webContents.send('hover-ball-hide-events')
-  }
-
-  /**
-   * 显示悬浮球窗口
-   */
-  static hoverBallWinShow(): void {
-    if (isNull(GlobalWin.hoverBallWin)) {
-      return
-    }
-    // console.log('显示悬浮球窗口')
-    GlobalWin.isHoverBall = true
-    GlobalWin.hoverBallWin.setAlwaysOnTop(true, 'pop-up-menu', 1)
-    GlobalWin.hoverBallWin.setVisibleOnAllWorkspaces(true)
-    GlobalWin.hoverBallWin.showInactive()
-    GlobalWin.hoverBallWin.webContents
-      .executeJavaScript('JSON.stringify({width:screen.width,height: screen.height})')
-      .then((value) => {
-        const res = JSON.parse(value)
-        const width = res.width
-        const height = res.height
-        // 获取到鼠标的横坐标和纵坐标
-        const { x, y } = screen.getCursorScreenPoint()
-        // 设置坐标的同时设置宽高 否则在多显示器且显示器之间缩放比例不一致的情况下来回切换会导致悬浮球显示错位
-        GlobalWin.hoverBallWin.setBounds({ x: x, y: y + 11, width: width, height: height })
-        GlobalWin.hoverBallWin.webContents.send('hover-ball-show-events')
-      })
   }
 
   /**
@@ -345,61 +250,6 @@ class GlobalWin {
   static ocrWinShow(): void {
     GlobalWin.winShow(GlobalWin.ocrWin)
     this.mainOrOcrWinShowCallback()
-  }
-
-  /**
-   * 设置OCR静默窗口
-   *
-   * @param ocrSilenceWin OCR静默窗口
-   */
-  static setOcrSilenceWin(ocrSilenceWin): void {
-    // 此处校验是因为窗口不会销毁 所以防止重复设置
-    if (isNull(GlobalWin.ocrSilenceWin)) {
-      GlobalWin.ocrSilenceWin = ocrSilenceWin
-    }
-  }
-
-  /**
-   * 隐藏OCR静默窗口
-   */
-  static ocrSilenceWinHide(): void {
-    if (isNull(GlobalWin.ocrSilenceWin)) {
-      return
-    }
-    // console.log('隐藏OCR静默窗口')
-    GlobalWin.isOcrSilence = false
-    GlobalWin.ocrSilenceWin.hide()
-    GlobalWin.ocrSilenceWin.webContents.send('ocr-silence-hide-events')
-  }
-
-  /**
-   * 显示OCR静默窗口
-   */
-  static ocrSilenceWinShow(): void {
-    if (isNull(GlobalWin.ocrSilenceWin)) {
-      return
-    }
-    // console.log('显示OCR静默窗口')
-    GlobalWin.isOcrSilence = true
-    GlobalWin.ocrSilenceWin.setAlwaysOnTop(true, 'pop-up-menu', 1)
-    GlobalWin.ocrSilenceWin.setVisibleOnAllWorkspaces(true)
-    if (SystemTypeEnum.isMac()) {
-      GlobalWin.ocrSilenceWin.show()
-    } else {
-      GlobalWin.ocrSilenceWin.showInactive()
-    }
-    GlobalWin.ocrSilenceWin.webContents
-      .executeJavaScript('JSON.stringify({width:screen.width,height: screen.height})')
-      .then((value) => {
-        const res = JSON.parse(value)
-        const width = res.width
-        const height = res.height
-        // 获取到鼠标的横坐标和纵坐标
-        const { x, y } = screen.getCursorScreenPoint()
-        // 设置坐标的同时设置宽高 否则在多显示器且显示器之间缩放比例不一致的情况下来回切换会导致悬浮球显示错位
-        GlobalWin.ocrSilenceWin.setBounds({ x: x, y: y + 11, width: width, height: height })
-        GlobalWin.ocrSilenceWin.webContents.send('ocr-silence-show-events')
-      })
   }
 
   /**

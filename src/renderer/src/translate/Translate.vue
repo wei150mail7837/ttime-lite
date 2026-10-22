@@ -108,7 +108,7 @@ window.api.winShowByInputEvent(() => {
  */
 if (isNull(cacheGet('translateServiceMap'))) {
   const map = new Map()
-  for (const type of [TranslateServiceEnum.GOOGLE_BUILT_IN, TranslateServiceEnum.BING_DICT, TranslateServiceEnum.DEEP_L_BUILT_IN]) {
+  for (const type of [TranslateServiceEnum.OPEN_AI]) {
     const service = buildTranslateService(type)
     map.set(service.id, service)
   }

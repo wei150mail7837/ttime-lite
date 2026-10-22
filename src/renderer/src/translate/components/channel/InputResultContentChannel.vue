@@ -42,22 +42,10 @@
             <div v-show="dictTranslatedResultExpand.isUs" class="phonetic-block">
               <span class="phonetic-type">美 </span>
               <span class="phonetic">[{{ dictTranslatedResultExpand.usPhonetic }}]</span>
-              <a
-                class="phonetic-function-play cursor-pointer"
-                @click="playSpeechByUrl(dictTranslatedResultExpand.usSpeech)"
-              >
-                <svg-icon icon-class="play" class="phonetic-function-tools-icon" />
-              </a>
             </div>
             <div v-show="dictTranslatedResultExpand.isUk" class="phonetic-block">
               <span class="phonetic-type">英 </span>
               <span class="phonetic">[{{ dictTranslatedResultExpand.ukPhonetic }}]</span>
-              <a
-                class="phonetic-function-play cursor-pointer"
-                @click="playSpeechByUrl(dictTranslatedResultExpand.ukSpeech)"
-              >
-                <svg-icon icon-class="play" class="phonetic-function-tools-icon" />
-              </a>
             </div>
           </div>
 
@@ -85,9 +73,6 @@
           </div>
 
           <div class="function-tools-block">
-            <a class="function-tools" @click="playSpeech(translatedResultContent)">
-              <svg-icon icon-class="play" class="function-tools-icon" />
-            </a>
             <a class="function-tools" @click="textWriteShearPlate(translatedResultContent)">
               <svg-icon icon-class="copy" class="function-tools-icon" />
             </a>
@@ -191,24 +176,6 @@ const showResultFun = (): void => {
     return
   }
   showResult.value = !showResult.value
-}
-
-/**
- * 播放语音
- *
- * @param url 播放语音服务
- */
-const playSpeechByUrl = (url): void => {
-  translate.playSpeechNewAudio(url)
-}
-
-/**
- * 播放语音
- *
- * @param text 播放的文字
- */
-const playSpeech = (text): void => {
-  translate.playSpeech(text)
 }
 
 /**

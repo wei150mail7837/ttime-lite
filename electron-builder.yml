@@ -1,5 +1,5 @@
 appId: com.ruizhideng.ttime.community
-productName: TTime Community
+productName: TTime Lite
 directories:
   buildResources: build
 files:
@@ -10,9 +10,11 @@ files:
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
   - '!README.assets/*'
   - '!README.en.assets/*'
+extraResources:
+  - from: vision/bin
+    to: vision/bin
 asarUnpack:
   - '**/*.{node,dll}'
-  - '**/ocr/models/**'
   - '**/plugins/*.exe'
 #asar:
 #  false
