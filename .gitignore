@@ -59,3 +59,4 @@ node_modules/
 
 # Downloaded, pinned OCR models
 /ocr/models/
+.DS_Store
