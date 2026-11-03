@@ -1,0 +1,14 @@
+"use strict";
+require("electron");
+require("path");
+require("@electron-toolkit/utils");
+require("./index.c8ffaae6.js");
+require("electron-log");
+require("electron-store");
+require("auto-launch");
+require("child_process");
+require("fs");
+require("node-screenshots");
+require("fs-extra");
+require("@jitsi/robotjs");
+require("uiohook-napi");

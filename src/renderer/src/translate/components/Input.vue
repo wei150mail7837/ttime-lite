@@ -175,7 +175,7 @@ const translateFun = (): void => {
   emit('show-result-event', false)
   // 翻译内容
   let translateContentDealWith = translateContent.value
-  window.api.logInfoEvent('[翻译事件] - 翻译内容 : ', translateContentDealWith)
+  window.api.logInfoEvent('[翻译事件] - 翻译内容长度 : ', (translateContentDealWith || '').length)  // 隐私：不记录原文
   // 替换所有换行符、回车符后如果发送的消息还是为空则默认不继续进行操作
   if (isContentNull(translateContentDealWith)) {
     window.api.logInfoEvent('[翻译事件] - 翻译内容过滤后为空')
