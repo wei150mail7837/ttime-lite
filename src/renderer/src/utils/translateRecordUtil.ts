@@ -1,0 +1,61 @@
+import { cacheGetByType, cacheSetByType } from './cacheUtil'
+import { StoreTypeEnum } from '../../../common/enums/StoreTypeEnum'
+import TranslateRecordVo from '../../../common/class/TranslateRecordVo'
+import { isNull } from '../../../common/utils/validate'
+
+/**
+ * 更新翻译记录
+ *
+ * @param translateVo 翻译结果
+ */
+export const updateTranslateRecord = (translateVo): void => {
+  let requestId = translateVo['requestId']
+  // 翻译记录
+  const translateRecordList = getTranslateRecordList()
+  for (let i = 0; i < translateRecordList.length; i++) {
+    const translateRecord = translateRecordList[i]
+    if (translateRecord['requestId'] === requestId) {
+      const translateServiceRecordList = translateRecord['translateServiceRecordList']
+      for (let j = 0; j < translateServiceRecordList.length; j++) {
+        const translateServiceRecord = translateServiceRecordList[j]
+        if (translateServiceRecord.translateServiceId === translateVo['translateServiceId']) {
+          const newTranslateInfo = JSON.parse(JSON.stringify(translateVo))
+          // 最上层对象已经记录过了服务ID和请求ID，所以这里移除重复记录字段
+          delete newTranslateInfo.translateServiceId
+          delete newTranslateInfo.requestId
+          translateServiceRecord['translateVo'] = newTranslateInfo
+          translateServiceRecord.translateStatus = true
+        }
+      }
+    }
+  }
+  cacheSetByType(StoreTypeEnum.HISTORY_RECORD, 'translateRecordList', translateRecordList)
+}
+
+/**
+ * 获取翻译记录
+ *
+ * @return 翻译记录
+ */
+export const getTranslateRecordList = (): Array<TranslateRecordVo> => {
+  const res = cacheGetByType(StoreTypeEnum.HISTORY_RECORD, 'translateRecordList')
+  return isNull(res) ? [] : res
+}
+
+/**
+ * 获取翻译记录数量
+ */
+export const getTranslateRecordSize = (): number => {
+  const size = cacheGetByType(StoreTypeEnum.HISTORY_RECORD, 'translateRecordSize')
+  return isNull(size) ? 0 : size
+}
+
+/**
+ * 更新翻译记录
+ *
+ * @return 翻译记录列表
+ */
+export const updateTranslateRecordList = (translateRecordList): void => {
+  cacheSetByType(StoreTypeEnum.HISTORY_RECORD, 'translateRecordSize', translateRecordList.length)
+  cacheSetByType(StoreTypeEnum.HISTORY_RECORD, 'translateRecordList', translateRecordList)
+}

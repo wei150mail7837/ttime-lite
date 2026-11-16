@@ -12,6 +12,7 @@ import StoreService from './StoreService'
 import { SystemTypeEnum } from '../enums/SystemTypeEnum'
 import { localOcrModels } from './LocalOcrModels'
 import { OcrResult } from '../../common/ocr/OcrResult'
+import visionOcr from './VisionOcr'
 
 let localOcrRequestId = 0
 let nullWin: BrowserWindow
@@ -20,30 +21,53 @@ const screenshotWinMap = new Map()
 
 // 窗口加载完毕后执行
 app.whenReady().then(() => {
-  // 预加载文字识别窗口
-  createTextOcrWin()
+  // textOcr 隐藏窗口是 Windows PP-OCR 渲染管线专用；mac 走进程内 Vision，无需创建
+  if (!SystemTypeEnum.isMac()) {
+    createTextOcrWin()
+  }
 })
 
 /**
  * 处理图片文字识别
  *
- * 精简版仅保留本地离线 OCR（PP-OCR），不再有在线渠道分支
+ * 精简版仅保留本地离线 OCR，按平台分引擎：
+ * - macOS：Vision（进程内，包体小、识别质量优）
+ * - Windows：PP-OCRv4（onnxruntime，Windows 无 Vision）
  */
 ipcMain.handle('handle-image-text-recognition-event', async (_event, imgByBase64) => {
   const requestId = ++localOcrRequestId
-  const language = StoreService.configGet('localOcrLanguage') as string
-  try {
-    const models = await localOcrModels.prepare(language)
-    if (requestId !== localOcrRequestId) return
-    ScreenshotsMain.textOcrWin.webContents.send('local-ocr', {
-      requestId,
-      image: imgByBase64,
-      language,
-      models,
-      merge: StoreService.configGet('localOcrMergeParagraphs')
-    })
-  } catch (error: any) {
-    if (requestId === localOcrRequestId) await GlobalWin.ocrUpdateContent(YesNoEnum.N, error.message)
+  if (SystemTypeEnum.isMac()) {
+    // mac：Vision 进程内识别
+    try {
+      const result = await visionOcr.recognize(
+        imgByBase64,
+        StoreService.configGet('localOcrMergeParagraphs') as boolean
+      )
+      if (requestId !== localOcrRequestId) return
+      if (ScreenshotsMain.ocrType === OcrTypeEnum.OCR)
+        GlobalWin.ocrWin.webContents.send('update-ocr-result', result)
+      await GlobalWin.ocrUpdateContent(YesNoEnum.Y, result.allText)
+    } catch (error: any) {
+      if (requestId === localOcrRequestId)
+        await GlobalWin.ocrUpdateContent(YesNoEnum.N, error.message)
+    }
+  } else {
+    // Windows：PP-OCR（经 textOcr 隐藏窗口渲染管线）
+    const language = StoreService.configGet('localOcrLanguage') as string
+    try {
+      const models = await localOcrModels.prepare(language)
+      if (requestId !== localOcrRequestId) return
+      ScreenshotsMain.textOcrWin.webContents.send('local-ocr', {
+        requestId,
+        image: imgByBase64,
+        language,
+        models,
+        merge: StoreService.configGet('localOcrMergeParagraphs')
+      })
+    } catch (error: any) {
+      if (requestId === localOcrRequestId)
+        await GlobalWin.ocrUpdateContent(YesNoEnum.N, error.message)
+    }
   }
 })
 

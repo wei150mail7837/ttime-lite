@@ -10,10 +10,16 @@ files:
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
   - '!README.assets/*'
   - '!README.en.assets/*'
-  # 精简版：只带 Windows x64 的推理运行时，去掉 macOS/Linux/arm64 二进制
+  # Windows：只带 x64 推理运行时（mac 构建走 Vision，不需要 onnxruntime）
   - '!node_modules/onnxruntime-node/bin/napi-v3/darwin/**'
   - '!node_modules/onnxruntime-node/bin/napi-v3/linux/**'
   - '!node_modules/onnxruntime-node/bin/napi-v3/win32/arm64/**'
+# mac：Vision 命令行工具随包分发（VisionOcr spawn 用）
+extraResources:
+  - from: vision/bin
+    to: vision/bin
+    filter:
+      - '**/*'
 # 只保留中英文 Chromium 语言包（23.x 无 electronLanguages 选项，用 afterPack 钩子裁剪）
 asarUnpack:
   - '**/*.{node,dll}'
