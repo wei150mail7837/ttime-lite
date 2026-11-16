@@ -1,4 +1,4 @@
-appId: com.ruizhideng.ttime.community
+appId: com.ruizhideng.ttime.lite
 productName: TTime Lite
 directories:
   buildResources: build
@@ -10,17 +10,21 @@ files:
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
   - '!README.assets/*'
   - '!README.en.assets/*'
-extraResources:
-  - from: vision/bin
-    to: vision/bin
+  # 精简版：只带 Windows x64 的推理运行时，去掉 macOS/Linux/arm64 二进制
+  - '!node_modules/onnxruntime-node/bin/napi-v3/darwin/**'
+  - '!node_modules/onnxruntime-node/bin/napi-v3/linux/**'
+  - '!node_modules/onnxruntime-node/bin/napi-v3/win32/arm64/**'
+# 只保留中英文 Chromium 语言包（23.x 无 electronLanguages 选项，用 afterPack 钩子裁剪）
 asarUnpack:
   - '**/*.{node,dll}'
+  - '**/ocr/models/**'
   - '**/plugins/*.exe'
 #asar:
 #  false
+afterPack: build/afterPack.js
 afterSign: build/notarize.js
 win:
-  executableName: TTime Community
+  executableName: TTime Lite
 nsis:
   differentialPackage: false
   artifactName: ${productName}-${version}-setup.${ext}

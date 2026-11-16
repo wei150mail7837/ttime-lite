@@ -2,8 +2,6 @@ import { requestAiTranslation } from './AiChannelRequest'
 
 class ChannelRequest {
   static openaiTranslate = requestAiTranslation
-
-
 }
 
 /**

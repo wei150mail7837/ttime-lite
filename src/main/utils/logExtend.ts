@@ -7,9 +7,6 @@ export const paramsFilter = (obj): object => {
   newObj['img'] = 'img***'
   newObj['token'] = 'token***'
   newObj['responseData'] = '***'
-  // 隐私：请求原文不打日志
-  newObj['translateContent'] = '***'
-  newObj['text'] = '***'
   return newObj
 }
 

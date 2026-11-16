@@ -11,11 +11,6 @@ class OcrTypeEnum {
    * OCR
    */
   static OCR = 'OCR'
-
-  /**
-   * OCR - 静默
-   */
-  static OCR_SILENCE = 'OCRSilence'
 }
 
 export default OcrTypeEnum

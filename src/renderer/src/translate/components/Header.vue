@@ -38,6 +38,7 @@ const thumbtackStatus = ref(cacheGet('thumbtackStatus'))
 // 窗口显示事件 当窗口显示时触发
 window.api.winShowEvent(() => {
   nextTick(() => {
+    thumbtackStatus.value = cacheGet('thumbtackStatus')
   })
 })
 // 根据固定状态设置窗口是否置于最前面

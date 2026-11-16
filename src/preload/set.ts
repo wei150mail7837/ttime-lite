@@ -53,22 +53,6 @@ const apiCheckTranslateCallbackEvent = (callback): (() => void) => {
 }
 
 /**
- * 统一Ocr校验
- */
-const apiUniteOcrCheck = (type, info): void => {
-  ipcRenderer.invoke('api-unite-ocr-check', type, info)
-}
-
-/**
- * 统一Ocr校验回调
- */
-const apiCheckOcrCallbackEvent = (callback): void => {
-  ipcRenderer.on('api-check-ocr-callback-event', (_event, type, res) => {
-    callback(type, res)
-  })
-}
-
-/**
  * 更新置顶时允许隐藏窗口选择事件通知
  */
 const alwaysOnTopAllowEscStatusNotify = (): void => {
@@ -120,10 +104,6 @@ const setWinFocusEvent = (callback): void => {
 /**
  * 窗口字体大小更新通知
  */
-const hideTrayIconStatusNotify = (): void => {
-  ipcRenderer.invoke('hide-tray-icon-status-notify')
-}
-
 const winFontSizeNotify = (): void => {
   ipcRenderer.invoke('win-font-size-notify')
 }
@@ -147,14 +127,11 @@ const api = {
   updateTranslateServiceNotify,
   apiUniteTranslateCheck,
   apiCheckTranslateCallbackEvent,
-  apiUniteOcrCheck,
-  apiCheckOcrCallbackEvent,
   alwaysOnTopAllowEscStatusNotify,
   openDirectoryDialog,
   openDirectoryDialogCallback,
   updateConfigInfoPath,
   setWinFocusEvent,
-  hideTrayIconStatusNotify,
   winFontSizeNotify,
   winShowEvent,
 }

@@ -10,17 +10,12 @@ declare global {
     updateTranslateServiceNotify
     apiUniteTranslateCheck
     apiCheckTranslateCallbackEvent
-    apiUniteAgentCheck
-    apiUniteAgentCheckCallbackEvent
-    apiUniteOcrCheck
-    apiCheckOcrCallbackEvent
     getVersionEvent
     alwaysOnTopAllowEscStatusNotify
     openDirectoryDialog
     openDirectoryDialogCallback
     updateConfigInfoPath
     setWinFocusEvent
-    hideTrayIconStatusNotify
     winFontSizeNotify
     winShowEvent
   }

@@ -1,7 +1,5 @@
-import { BrowserWindow, ipcMain, screen } from 'electron'
-import { spawn } from 'child_process'
+import { app, BrowserWindow, ipcMain, screen } from 'electron'
 import * as path from 'path'
-import * as fs from 'fs'
 import { is } from '@electron-toolkit/utils'
 import log from '../utils/log'
 import { Screenshots } from 'node-screenshots'
@@ -9,37 +7,44 @@ import GlobalWin from './GlobalWin'
 import { GlobalShortcutEvent } from './GlobalShortcutEvent'
 import { WinEvent } from './Win'
 import OcrTypeEnum from '../enums/OcrTypeEnum'
-import StoreService from './StoreService'
 import { YesNoEnum } from '../../common/enums/YesNoEnum'
+import StoreService from './StoreService'
 import { SystemTypeEnum } from '../enums/SystemTypeEnum'
-import visionOcr from './VisionOcr'
+import { localOcrModels } from './LocalOcrModels'
+import { OcrResult } from '../../common/ocr/OcrResult'
 
 let localOcrRequestId = 0
 let nullWin: BrowserWindow
 
 const screenshotWinMap = new Map()
 
+// 窗口加载完毕后执行
+app.whenReady().then(() => {
+  // 预加载文字识别窗口
+  createTextOcrWin()
+})
+
 /**
- * 处理图片文字识别（macOS Vision 离线识别）
+ * 处理图片文字识别
+ *
+ * 精简版仅保留本地离线 OCR（PP-OCR），不再有在线渠道分支
  */
-const processImageTextRecognition = async (imgByBase64: string): Promise<void> => {
+ipcMain.handle('handle-image-text-recognition-event', async (_event, imgByBase64) => {
   const requestId = ++localOcrRequestId
+  const language = StoreService.configGet('localOcrLanguage') as string
   try {
-    const result = await visionOcr.recognize(
-      imgByBase64,
-      StoreService.configGet('localOcrMergeParagraphs')
-    )
+    const models = await localOcrModels.prepare(language)
     if (requestId !== localOcrRequestId) return
-    if (ScreenshotsMain.ocrType === OcrTypeEnum.OCR)
-      GlobalWin.ocrWin.webContents.send('update-ocr-result', result)
-    await GlobalWin.ocrUpdateContent(YesNoEnum.Y, result.allText)
+    ScreenshotsMain.textOcrWin.webContents.send('local-ocr', {
+      requestId,
+      image: imgByBase64,
+      language,
+      models,
+      merge: StoreService.configGet('localOcrMergeParagraphs')
+    })
   } catch (error: any) {
     if (requestId === localOcrRequestId) await GlobalWin.ocrUpdateContent(YesNoEnum.N, error.message)
   }
-}
-
-ipcMain.handle('handle-image-text-recognition-event', (_event, imgByBase64) => {
-  processImageTextRecognition(imgByBase64)
 })
 
 /**
@@ -47,13 +52,6 @@ ipcMain.handle('handle-image-text-recognition-event', (_event, imgByBase64) => {
  */
 ipcMain.handle('screenshot-end-event', (_event, imgByBase64) => {
   ScreenshotsMain.closeScreenshotsWin()
-  handleCapturedImage(imgByBase64)
-})
-
-/**
- * 截图产出后的窗口调度（内置/系统截图共用）
- */
-const handleCapturedImage = (imgByBase64: string): void => {
   if (ScreenshotsMain.ocrType === OcrTypeEnum.OCR) {
     GlobalWin.ocrWin.show()
     setTimeout(() => WinEvent.ocrAlwaysOnTop(GlobalWin.isOcrAlwaysOnTop), 300)
@@ -67,7 +65,21 @@ const handleCapturedImage = (imgByBase64: string): void => {
     // 截图结束通知事件
     GlobalWin.mainWinSend('screenshot-end-notify-event')
   }
-}
+})
+
+/**
+ * 文本识别事件
+ */
+ipcMain.handle('local-ocr-result', async (_event, requestId: number, result: OcrResult) => {
+  if (requestId !== localOcrRequestId) return
+  if (ScreenshotsMain.ocrType === OcrTypeEnum.OCR)
+    GlobalWin.ocrWin.webContents.send('update-ocr-result', result)
+  await GlobalWin.ocrUpdateContent(YesNoEnum.Y, result.allText)
+})
+
+ipcMain.handle('local-ocr-error', async (_event, requestId: number, message: string) => {
+  if (requestId === localOcrRequestId) await GlobalWin.ocrUpdateContent(YesNoEnum.N, message)
+})
 
 /**
  * 获取当前鼠标所在的显示器缩放比例事件
@@ -89,6 +101,46 @@ ipcMain.handle('screen-scale-factor-event', (_event, screenId) => {
 ipcMain.handle('close-screenshots-win-event', (_event) => {
   ScreenshotsMain.closeScreenshotsWin()
 })
+
+/**
+ * 创建文字识别窗口
+ */
+function createTextOcrWin(): void {
+  // 创建浏览器窗口，只允许创建一个
+  if (ScreenshotsMain.textOcrWin) {
+    return console.info('只能有一个createTextOcrWin')
+  }
+  ScreenshotsMain.textOcrWin = new BrowserWindow({
+    // window 使用 fullscreen,  mac 设置为 undefined, 不可为 false
+    fullscreen: process.platform !== 'darwin' || undefined, // win
+    width: 1000,
+    height: 1000,
+    webPreferences: {
+      // 窗口引入预加载信息
+      preload: path.join(__dirname, '../preload/textOcr.js'),
+      sandbox: false,
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  })
+  ScreenshotsMain.textOcrWin.hide()
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    ScreenshotsMain.textOcrWin.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/textOcr.html`)
+  } else {
+    ScreenshotsMain.textOcrWin.loadFile(path.join(__dirname, '../renderer/textOcr.html'))
+  }
+
+  // 打开开发者工具
+  // ScreenshotsMain.textOcrWin.webContents.openDevTools({ mode: 'detach' })
+
+  // 当 window 被关闭，这个事件会被触发。
+  ScreenshotsMain.textOcrWin.on('closed', () => {
+    // 取消引用 window 对象，如果你的应用支持多窗口的话，
+    // 通常会把多个 window 对象存放在一个数组里面，
+    // 与此同时，你应该删除相应的元素。
+    ScreenshotsMain.textOcrWin = nullWin
+  })
+}
 
 class ScreenshotsSon {
   /**
@@ -195,6 +247,11 @@ class ScreenshotsSon {
 
 class ScreenshotsMain {
   /**
+   * 文字识别窗口
+   */
+  static textOcrWin: BrowserWindow
+
+  /**
    * ocr类型
    */
   static ocrType: string
@@ -208,46 +265,6 @@ class ScreenshotsMain {
    * 截图窗口列表
    */
   static screenshotsWinList: Array<ScreenshotsSon> = new Array<ScreenshotsSon>()
-
-  /**
-   * 按配置选择截图引擎发起截图
-   */
-  captureByEngine(): void {
-    if (StoreService.configGet('systemScreenshotStatus') === YesNoEnum.Y) {
-      ScreenshotsMain.systemCapture()
-    } else {
-      this.createScreenshotsWin()
-    }
-  }
-
-  /**
-   * 系统自带截图（macOS screencapture -i 原生选区）
-   */
-  static systemCapture(): void {
-    log.info('[截图] - 使用系统截图工具')
-    const imageFile = path.join(
-      StoreService.userDataPath,
-      `ttime-system-capture-${Date.now()}.png`
-    )
-    const child = spawn('screencapture', ['-i', imageFile])
-    child.on('error', (error) => {
-      log.error('[截图] - 系统截图工具启动失败', error)
-      fs.unlink(imageFile, () => {})
-    })
-    child.on('close', (code) => {
-      if (code !== 0 || !fs.existsSync(imageFile)) {
-        // 用户按 Esc 取消或截图失败
-        log.info('[截图] - 系统截图取消或失败')
-        fs.unlink(imageFile, () => {})
-        return
-      }
-      const imageBuffer = fs.readFileSync(imageFile)
-      fs.unlink(imageFile, () => {})
-      const imgByBase64 = 'data:image/png;base64,' + imageBuffer.toString('base64')
-      handleCapturedImage(imgByBase64)
-      processImageTextRecognition(imgByBase64)
-    })
-  }
 
   /**
    * 创建截图窗口

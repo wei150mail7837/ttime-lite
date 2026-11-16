@@ -53,24 +53,6 @@
         开启后，当翻译 / OCR窗口置顶时，按ESC键依旧可隐藏窗口
       </span>
     </el-form-item>
-    <el-form-item class="none-select" label="使用系统截图">
-      <el-checkbox
-        v-model="advancedSettingInfo.systemScreenshotStatus"
-        @change="systemScreenshotStatusEvent"
-      />
-      <span class="form-switch-span none-select">
-        开启后使用 macOS 自带截图选区（screencapture），关闭则使用内置选区窗口
-      </span>
-    </el-form-item>
-    <el-form-item class="none-select" label="隐藏菜单栏图标">
-      <el-checkbox
-        v-model="advancedSettingInfo.hideTrayIconStatus"
-        @change="hideTrayIconStatusEvent"
-      />
-      <span class="form-switch-span none-select">
-        隐藏后菜单栏将不显示 TTime 图标；翻译窗口左上角仍可进入设置，重新打开 TTime 可唤起窗口
-      </span>
-    </el-form-item>
     <el-form-item class="none-select" label="输入自动翻译">
       <el-checkbox
         v-model="advancedSettingInfo.inputTranslationAutoStatus"
@@ -111,8 +93,6 @@ import { cacheGet, cacheSet } from '../../../utils/cacheUtil'
  */
 const advancedSettingInfo = ref({
   alwaysOnTopAllowEscStatus: cacheGet('alwaysOnTopAllowEscStatus') === YesNoEnum.Y,
-  systemScreenshotStatus: cacheGet('systemScreenshotStatus') === YesNoEnum.Y,
-  hideTrayIconStatus: cacheGet('hideTrayIconStatus') === YesNoEnum.Y,
   wrapReplaceSpaceStatus: cacheGet('wrapReplaceSpaceStatus') === YesNoEnum.Y,
   ocrWriteClipboardStatus: cacheGet('ocrWriteClipboardStatus') === YesNoEnum.Y,
   ocrWrapReplaceSpaceStatus: cacheGet('ocrWrapReplaceSpaceStatus') === YesNoEnum.Y,
@@ -133,27 +113,6 @@ const alwaysOnTopAllowEscStatusEvent = (val): void => {
   advancedSettingInfo.value.alwaysOnTopAllowEscStatus = val
   // 更新置顶时允许隐藏窗口选择事件通知
   window.api.alwaysOnTopAllowEscStatusNotify()
-}
-
-/**
- * 使用系统截图状态事件
- *
- * @param val 使用系统截图状态
- */
-const systemScreenshotStatusEvent = (val): void => {
-  cacheSet('systemScreenshotStatus', val ? YesNoEnum.Y : YesNoEnum.N)
-  advancedSettingInfo.value.systemScreenshotStatus = val
-}
-
-/**
- * 隐藏菜单栏图标状态事件
- *
- * @param val 隐藏菜单栏图标状态
- */
-const hideTrayIconStatusEvent = (val): void => {
-  cacheSet('hideTrayIconStatus', val ? YesNoEnum.Y : YesNoEnum.N)
-  advancedSettingInfo.value.hideTrayIconStatus = val
-  window.api.hideTrayIconStatusNotify()
 }
 
 /**

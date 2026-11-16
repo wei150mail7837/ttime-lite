@@ -52,7 +52,7 @@ export const buildAiRequest = (info: AiRequestInfo, stream: boolean) => {
 
 export const readAiResponse = (data): string => {
   if (data.error) throw new Error(typeof data.error === 'string' ? data.error : data.error.message)
-  const text: string = data.choices[0].message.content
+  const text = data.choices[0].message.content
   if (!text) throw new Error('服务未返回文本结果')
   return text
 }
@@ -71,7 +71,7 @@ export async function* readAiStream(chunks: AsyncIterable<Uint8Array>): AsyncGen
   let receivedText = false
   const consumeLine = (line: string): { text: string; done: boolean } | undefined => {
     if (line.startsWith('data:')) eventData.push(line.slice(5).trimStart())
-    if (line !== '' || eventData.length === 0) return undefined
+    if (line !== '' || eventData.length === 0) return
     const payload = eventData.join('\n')
     eventData = []
     return payload === '[DONE]' ? { text: '', done: true } : readChunk(JSON.parse(payload))

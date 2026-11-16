@@ -16,8 +16,9 @@ export default defineConfig({
         input: {
           index: resolve(__dirname, 'src/preload/index.ts'),
           screenshot: resolve(__dirname, 'src/preload/screenshot.ts'),
+          textOcr: resolve(__dirname, 'src/preload/textOcr.ts'),
           set: resolve(__dirname, 'src/preload/set.ts'),
-          ocr: resolve(__dirname, 'src/preload/ocr.ts'),
+          ocr: resolve(__dirname, 'src/preload/ocr.ts')
         }
       }
     }
@@ -50,8 +51,9 @@ export default defineConfig({
         input: {
           index: resolve(__dirname, 'src/renderer/index.html'),
           screenshot: resolve(__dirname, 'src/renderer/screenshot.html'),
+          textOcr: resolve(__dirname, 'src/renderer/textOcr.html'),
           set: resolve(__dirname, 'src/renderer/set.html'),
-          ocr: resolve(__dirname, 'src/renderer/ocr.html'),
+          ocr: resolve(__dirname, 'src/renderer/ocr.html')
         }
       }
     }

@@ -144,6 +144,7 @@ class StoreService {
     if (!StoreService.configHas('wrapReplaceSpaceStatus')) {
       StoreService.configSet('wrapReplaceSpaceStatus', YesNoEnum.N)
     }
+    // 初始化鼠标悬浮球取词状态
     // 初始化OCR结果写入剪贴板状态
     if (!StoreService.configHas('ocrWriteClipboardStatus')) {
       StoreService.configSet('ocrWriteClipboardStatus', YesNoEnum.N)
@@ -159,16 +160,6 @@ class StoreService {
     // 初始化默认划词延迟
     if (!StoreService.configHas('translateChoiceDelay')) {
       StoreService.configSet('translateChoiceDelay', 600)
-    }
-    // 精简版：翻译记录功能已移除，强制关闭
-    StoreService.configSet('translateHistoryStatus', YesNoEnum.N)
-    // 初始化使用系统截图工具状态（默认使用系统自带截图）
-    if (!StoreService.configHas('systemScreenshotStatus')) {
-      StoreService.configSet('systemScreenshotStatus', YesNoEnum.Y)
-    }
-    // 初始化隐藏菜单栏图标状态
-    if (!StoreService.configHas('hideTrayIconStatus')) {
-      StoreService.configSet('hideTrayIconStatus', YesNoEnum.N)
     }
     // 初始化默认文字大小
     if (!StoreService.configHas('winFontSize')) {

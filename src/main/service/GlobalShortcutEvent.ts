@@ -157,7 +157,7 @@ class GlobalShortcutEvent {
     GlobalWin.mainWinHide()
     GlobalWin.ocrWinHide()
     ScreenshotsMain.ocrType = OcrTypeEnum.OCR_TRANSLATE
-    new ScreenshotsMain().captureByEngine()
+    new ScreenshotsMain().createScreenshotsWin()
   }
 
   /**
@@ -177,7 +177,7 @@ class GlobalShortcutEvent {
     GlobalWin.mainWinHide()
     GlobalWin.ocrWinHide()
     ScreenshotsMain.ocrType = OcrTypeEnum.OCR
-    new ScreenshotsMain().captureByEngine()
+    new ScreenshotsMain().createScreenshotsWin()
   }
 
   /**

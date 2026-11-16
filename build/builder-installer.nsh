@@ -1,4 +1,4 @@
-!define APP_NAME "TTime Community"
+!define APP_NAME "TTime Lite"
 !define MUI_FINISHPAGE_LINK "项目主页 : https://github.com/Ruizhi-Deng/TTime"
 !define MUI_FINISHPAGE_LINK_LOCATION "https://github.com/Ruizhi-Deng/TTime"
 

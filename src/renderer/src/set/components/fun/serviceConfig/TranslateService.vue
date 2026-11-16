@@ -83,7 +83,7 @@
 
           <el-form-item v-if="isAiService(translateServiceThis.type)" label="接口地址">
             <el-input v-model="translateServiceThis.requestUrl" spellcheck="false" />
-            <span class="form-switch-span">填写完整请求地址，路径和查询参数会原样使用。Ollama 可填 http://127.0.0.1:11434/v1/chat/completions</span>
+            <span class="form-switch-span">填写完整请求地址，路径和查询参数会原样使用。兼容 OpenAI 格式的接口均可，例如 http://127.0.0.1:11434/v1/chat/completions</span>
           </el-form-item>
           <el-form-item v-if="isAiService(translateServiceThis.type)" label="模型">
             <el-input v-model="translateServiceThis.model" placeholder="填写服务提供方的模型 ID" spellcheck="false" />
@@ -212,15 +212,13 @@ const aiPrompts = cacheGet('aiPrompts')
 const isAiService = (type: string): boolean => aiServiceTypes.includes(type)
 
 const requestArgumentsExample = (): string =>
-  JSON.stringify(
-    {
-          temperature: 0.1,
-          top_p: 0.99,
-          frequency_penalty: 0,
-          presence_penalty: 0,
-          reasoning_effort: 'low'
-        }
-  )
+  JSON.stringify({
+    temperature: 0.1,
+    top_p: 0.99,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    reasoning_effort: 'low'
+  })
 
 const checkRequestArguments = (): boolean => {
   if (!isAiService(translateServiceThis.value.type)) return true

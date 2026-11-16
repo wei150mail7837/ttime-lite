@@ -64,9 +64,6 @@ ipcMain.on('get-version-event', (event) => {
 })
 
 /**
- * 代理更新事件
- */
-/**
  * 打开目录对话框
  */
 ipcMain.on('open-directory-dialog', (event, storeConfigFunType, storeType) => {

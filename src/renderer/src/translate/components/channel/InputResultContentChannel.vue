@@ -116,7 +116,6 @@ import translate from '../../../utils/translate'
 import { aiServiceTypes } from '../../../../../common/utils/aiRequest'
 import { isNull } from '../../../../../common/utils/validate'
 import { OpenAIStatusEnum } from '../../../../../common/enums/OpenAIStatusEnum'
-import { updateTranslateRecord } from '../../../utils/translateRecordUtil'
 import { isEnglish } from '../../../utils/languageUtil'
 import { cacheGet } from '../../../utils/cacheUtil'
 import { YesNoEnum } from '../../../../../common/enums/YesNoEnum'
@@ -225,8 +224,6 @@ const unsubscribe = window.api[getTranslateServiceBackEventName(props.translateS
       isResultLoading.value = false
       copySpecialResultShow.value = isEnglish(translatedResultContent.value)
       data.translateList = [translatedResultContent.value]
-      // 更新翻译记录
-      updateTranslateRecord(data)
       // 在流式翻译结束后重新计算翻译结果容器高度
       adjustTextareaHeight()
       return
@@ -242,8 +239,6 @@ const unsubscribe = window.api[getTranslateServiceBackEventName(props.translateS
   copySpecialResultShow.value = isEnglish(translatedResultContentTemp)
   copyCamelCaseResultStatus.value = cacheGet('copyCamelCaseResultStatus') === YesNoEnum.Y
   copySnakeCaseResultStatus.value = cacheGet('copySnakeCaseResultStatus') === YesNoEnum.Y
-  // 更新翻译记录
-  updateTranslateRecord(data)
 
   let explainListDeal = []
   if (!isNull(data?.explains)) {

@@ -48,7 +48,7 @@ import {
   getTranslateServiceMapByUse,
   TranslateServiceBuilder
 } from '../../utils/translateServiceUtil'
-import { cacheGet } from '../../utils/cacheUtil'
+import { cacheGet, cacheSetByType } from '../../utils/cacheUtil'
 import ElMessageExtend from '../../utils/messageExtend'
 import {
   getLanguageNameConversion,
@@ -110,12 +110,6 @@ const screenshotRestore = (): void => {
 }
 
 /**
- * 播放语音
- *
- * @param text 播放的文字
- */
-
-/**
  * 文字写入到剪贴板
  */
 const textWriteShearPlate = (text): void => {
@@ -175,7 +169,7 @@ const translateFun = (): void => {
   emit('show-result-event', false)
   // 翻译内容
   let translateContentDealWith = translateContent.value
-  window.api.logInfoEvent('[翻译事件] - 翻译内容长度 : ', (translateContentDealWith || '').length)  // 隐私：不记录原文
+  window.api.logInfoEvent('[翻译事件] - 翻译内容 : ', translateContentDealWith)
   // 替换所有换行符、回车符后如果发送的消息还是为空则默认不继续进行操作
   if (isContentNull(translateContentDealWith)) {
     window.api.logInfoEvent('[翻译事件] - 翻译内容过滤后为空')

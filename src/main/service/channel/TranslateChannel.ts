@@ -45,4 +45,3 @@ ipcMain.handle('agent-api-translate-callback', (_event, res) => {
 ipcMain.handle('api-translate-result-msg-callback-event', (_event, channel, msg, info) => {
   GlobalWin.mainWinSend(channel.toLowerCase() + '-api-translate-callback-event', R.okCIT(-1, info, msg))
 })
-

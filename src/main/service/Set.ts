@@ -7,7 +7,6 @@ import R from '../../common/class/R'
 import log from '../utils/log'
 import { isNotNull, isNull } from '../../common/utils/validate'
 import GlobalWin from './GlobalWin'
-import { TrayEvent } from './TrayEvent'
 import { SystemTypeEnum } from '../enums/SystemTypeEnum'
 import { StoreTypeEnum } from '../../common/enums/StoreTypeEnum'
 import StoreService from './StoreService'
@@ -149,13 +148,6 @@ ipcMain.handle('update-translate-service-notify', (_event, _args) => {
  */
 ipcMain.handle('always-onTop-allow-esc-status-notify', (_event, _args) => {
   GlobalWin.mainOrOcrWinShowCallback()
-})
-
-/**
- * 隐藏菜单栏图标状态变更通知
- */
-ipcMain.handle('hide-tray-icon-status-notify', (_event, _args) => {
-  TrayEvent.applyHideStatus()
 })
 
 /**

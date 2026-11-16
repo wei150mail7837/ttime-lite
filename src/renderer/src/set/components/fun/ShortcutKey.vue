@@ -84,8 +84,7 @@ const shortcutKeyInfo = ref({
   screenshotShortcutKey: cacheGet('screenshotShortcutKey'),
   choiceShortcutKey: cacheGet('choiceShortcutKey'),
   showOcrShortcutKey: cacheGet('showOcrShortcutKey'),
-  screenshotOcrShortcutKey: cacheGet('screenshotOcrShortcutKey'),
-  screenshotSilenceOcrShortcutKey: cacheGet('screenshotSilenceOcrShortcutKey')
+  screenshotOcrShortcutKey: cacheGet('screenshotOcrShortcutKey')
 })
 
 const clearTranslateShortcutKey = (type): void => {

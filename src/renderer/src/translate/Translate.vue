@@ -38,7 +38,11 @@ import { nextTick, onUnmounted, ref } from 'vue'
 import ElMessageExtend from '../utils/messageExtend'
 
 import { isNull } from '../../../common/utils/validate'
-import { buildTranslateService, setTranslateServiceMap } from '../utils/translateServiceUtil'
+import {
+  buildTranslateService,
+  setTranslateServiceMap,
+  TranslateServiceBuilder
+} from '../utils/translateServiceUtil'
 import { buildOcrService, setOcrServiceMap } from '../utils/ocrServiceUtil'
 import { initTheme } from '../utils/themeUtil'
 import { cacheGet } from '../utils/cacheUtil'
@@ -106,13 +110,24 @@ window.api.winShowByInputEvent(() => {
  * 翻译服务list 如果不存在则说明第一次打开
  * 初始化默认翻译服务
  */
-if (isNull(cacheGet('translateServiceMap'))) {
-  const map = new Map()
-  for (const type of [TranslateServiceEnum.OPEN_AI]) {
-    const service = buildTranslateService(type)
-    map.set(service.id, service)
+const buildDefaultTranslateServiceMap = (): Map<any, any> => {
+  const service = buildTranslateService(TranslateServiceEnum.OPEN_AI)
+  return new Map([[service.id, service]])
+}
+
+const cachedTranslateServiceMap = cacheGet('translateServiceMap')
+if (isNull(cachedTranslateServiceMap)) {
+  setTranslateServiceMap(buildDefaultTranslateServiceMap())
+} else {
+  // 精简版：清理上游遗留的已移除翻译源配置，避免脏配置导致启动异常
+  const availableTypes = TranslateServiceBuilder.getServiceList()
+  const cachedMap = new Map(cachedTranslateServiceMap)
+  const cleanedMap = new Map(
+    Array.from(cachedMap.entries()).filter(([, service]) => availableTypes.has(service?.type))
+  )
+  if (cleanedMap.size !== cachedMap.size) {
+    setTranslateServiceMap(cleanedMap.size > 0 ? cleanedMap : buildDefaultTranslateServiceMap())
   }
-  setTranslateServiceMap(map)
 }
 
 /**

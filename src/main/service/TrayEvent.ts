@@ -6,8 +6,6 @@ import createSetWindow from './Set'
 import log from '../utils/log'
 import { GlobalShortcutEvent } from './GlobalShortcutEvent'
 import GlobalWin from './GlobalWin'
-import StoreService from './StoreService'
-import { YesNoEnum } from '../../common/enums/YesNoEnum'
 
 class TrayEvent {
   /**
@@ -19,29 +17,6 @@ class TrayEvent {
     if (isNotNull(TrayEvent.mainTray)) {
       return
     }
-    // 设置了隐藏菜单栏图标则不创建托盘
-    if (StoreService.configGet('hideTrayIconStatus') === YesNoEnum.Y) {
-      return
-    }
-    TrayEvent.create()
-  }
-
-  /**
-   * 按配置应用菜单栏图标显示状态
-   */
-  static applyHideStatus(): void {
-    const hide = StoreService.configGet('hideTrayIconStatus') === YesNoEnum.Y
-    if (hide && isNotNull(TrayEvent.mainTray)) {
-      TrayEvent.mainTray.destroy()
-      TrayEvent.mainTray = null
-      log.info('[托盘] - 已隐藏菜单栏图标')
-    } else if (!hide && !isNotNull(TrayEvent.mainTray)) {
-      TrayEvent.create()
-      log.info('[托盘] - 已显示菜单栏图标')
-    }
-  }
-
-  private static create(): void {
     // 托盘菜单列表
     const trayMenuTemplate = [
       {
@@ -151,4 +126,3 @@ class TrayEvent {
 }
 
 export { TrayEvent }
-
